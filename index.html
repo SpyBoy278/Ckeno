@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Fast Keno</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0d0d0d;--panel:#1a1a1a;--cell:#2a2a2a;
+  --green:#2ecc71;--green2:#27ae60;--orange:#e67e22;
+  --gold:#f0b429;--blue:#3498db;--dim:#777;--text:#fff;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);}
+body{font-family:'Roboto',sans-serif;color:var(--text);display:flex;flex-direction:column;max-width:480px;margin:0 auto;}
+.app{display:flex;flex-direction:column;height:100%;overflow:hidden;}
+
+/* HEADER */
+.hdr{flex-shrink:0;background:#111;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #222;}
+.logo{display:flex;flex-direction:column;line-height:1.1;}
+.lf{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--green);letter-spacing:3px;}
+.lk{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:#fff;letter-spacing:2px;}
+.hdr-r{display:flex;align-items:center;gap:8px;}
+.balpill{background:#222;border:1px solid #3a3a3a;border-radius:20px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--gold);}
+.balpill span{font-size:10px;color:var(--dim);font-weight:400;margin-left:3px;}
+.idpill{background:#0a2a18;border:1px solid var(--green);border-radius:20px;padding:5px 10px;font-size:11px;color:var(--green);font-weight:600;}
+.hi{font-size:20px;color:var(--dim);cursor:pointer;}
+
+/* DRAW AREA */
+.draw-area{
+  flex-shrink:0;
+  background:radial-gradient(ellipse at 50% -10%,#0a3020 0%,#0d0d0d 65%);
+  display:flex;flex-direction:column;align-items:center;
+  padding:8px 12px 10px;border-bottom:2px solid #1a1a1a;
+  position:relative;
+}
+.cd-row{display:flex;align-items:center;justify-content:center;width:100%;position:relative;margin-bottom:6px;}
+.cd{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:var(--green);letter-spacing:5px;}
+.dc{position:absolute;right:0;font-size:12px;color:var(--dim);}
+
+/* POSSIBLE WIN CARD */
+.pw-card{
+  width:100%;background:rgba(255,255,255,0.04);
+  border:1px solid #2a3a2a;border-radius:10px;
+  padding:10px 12px;margin-bottom:4px;position:relative;
+}
+.pw-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px;}
+.pw-title span{color:var(--green);font-size:15px;}
+.pw-rows{display:flex;flex-direction:column;gap:3px;}
+.pw-row{display:flex;align-items:center;gap:0;}
+.pw-label{font-size:10px;color:var(--dim);width:56px;flex-shrink:0;}
+.pw-vals{display:flex;gap:4px;flex-wrap:wrap;}
+.pw-val{
+  font-size:10px;font-weight:700;color:#bbb;
+  background:#1e1e1e;border:1px solid #333;
+  border-radius:4px;padding:2px 6px;min-width:32px;text-align:center;
+}
+.pw-val.hit-col{background:#0a2a14;border-color:var(--green);color:var(--green);}
+.pw-val.active-col{background:#1a3a24;border-color:var(--green);color:#fff;font-size:11px;}
+.pw-help{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;border:1px solid #444;color:var(--dim);font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.pw-picks{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;}
+.pw-pick-num{
+  width:28px;height:28px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;
+}
+.pp-sel{background:#1e3020;border:1px solid var(--green);color:var(--green);}
+.pp-hit{background:#155a28;border:1px solid #2ecc71;color:#fff;}
+.pp-empty{background:#1a1a1a;border:1px solid #222;color:#222;}
+
+/* WAIT STATE */
+.wait-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.wait-balls{display:flex;gap:10px;align-items:center;}
+.wball{border-radius:50%;background:radial-gradient(circle at 35% 28%,#445566,#1a1a2a 75%);border:2px solid #3a4a5a;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-weight:900;color:#fff;}
+.wball.sm{width:38px;height:38px;font-size:11px;}
+.wball.lg{width:46px;height:46px;font-size:18px;}
+.wait-title{font-size:14px;font-weight:700;color:#fff;}
+.wait-sub{font-size:11px;color:var(--dim);}
+
+/* DRAW STATE */
+.draw-wrap{display:none;flex-direction:column;align-items:center;width:100%;gap:6px;}
+.bigball{
+  width:74px;height:74px;border-radius:50%;
+  background:radial-gradient(circle at 32% 26%,#607888,#181c24 72%);
+  border:3px solid #4a5a6a;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:#fff;
+  box-shadow:0 0 24px rgba(46,204,113,.2),0 6px 16px rgba(0,0,0,.7),inset 0 2px 5px rgba(255,255,255,.12);
+}
+.bigball.pop{animation:bpop .35s ease;}
+@keyframes bpop{0%{transform:scale(.3);opacity:0;}65%{transform:scale(1.15);}100%{transform:scale(1);opacity:1;}}
+.minirow{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;max-width:340px;}
+.mb{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#445,#1a1a28 78%);border:1.5px solid #445;font-size:9px;font-weight:700;color:#ccc;display:flex;align-items:center;justify-content:center;}
+.mb.mh{background:radial-gradient(circle at 35% 28%,#2ecc71,#084020 78%);border-color:var(--green);color:#fff;box-shadow:0 0 7px rgba(46,204,113,.5);}
+
+/* MAIN SCROLL */
+.main-scroll{flex:1;overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;}
+.main-scroll::-webkit-scrollbar{display:none;}
+
+/* GRID */
+.grid-section{padding:5px 6px 4px;background:var(--bg);}
+.keno-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;}
+.cell{
+  aspect-ratio:1;border-radius:5px;
+  background:var(--cell);border:1px solid #3a3a3a;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;color:#bbb;
+  cursor:pointer;position:relative;user-select:none;
+  transition:background .1s,border .1s,color .1s;
+}
+.cell:active{transform:scale(.88);}
+.cell.sel{background:#1a3520;border-color:var(--green);color:var(--green);}
+.cell.sel::after{content:'';position:absolute;top:2px;right:2px;width:5px;height:5px;border-radius:50%;background:var(--blue);}
+.cell.dc{background:#2a2010;border-color:#c8960a;color:var(--gold);}
+.cell.hc{background:#0a3018;border-color:var(--green);color:var(--green);}
+.cell.hc::after{content:'';position:absolute;top:2px;right:2px;width:5px;height:5px;border-radius:50%;background:var(--green);}
+.cell.fd{opacity:.28;}
+
+/* BET ROW */
+.bet-row{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px;background:#111;border-top:1px solid #222;}
+.bbt{width:34px;height:34px;border-radius:6px;background:#2a2a2a;border:1px solid #3a3a3a;color:#fff;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.bval{flex:1;text-align:center;font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#fff;}
+.bx2{padding:6px 12px;border-radius:6px;background:#0e2a18;border:1.5px solid var(--green);color:var(--green);font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;}
+.bmax{padding:6px 10px;border-radius:6px;background:#222;border:1px solid #3a3a3a;color:#fff;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;}
+.bset{width:34px;height:34px;border-radius:6px;background:#222;border:1px solid #3a3a3a;color:var(--dim);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+
+/* PLAY BUTTON */
+.play-btn{
+  margin:7px 8px 0;padding:15px;border-radius:8px;
+  background:linear-gradient(180deg,#2ecc71 0%,#1a8a42 100%);
+  border:none;color:#fff;font-size:16px;font-weight:700;letter-spacing:2px;
+  cursor:pointer;box-shadow:0 3px 14px rgba(46,204,113,.28);
+  transition:all .15s;flex-shrink:0;width:calc(100% - 16px);
+}
+.play-btn:active{transform:scale(.98);}
+.play-btn.dr{background:linear-gradient(180deg,#e67e22,#a04000);box-shadow:0 3px 14px rgba(230,126,34,.3);}
+
+/* TABS */
+.tabs{display:flex;border-bottom:2px solid #222;margin-top:8px;background:#111;flex-shrink:0;}
+.tab{flex:1;padding:9px 2px;text-align:center;font-size:10px;font-weight:600;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;}
+.tab.on{color:var(--green);border-bottom-color:var(--green);}
+
+/* TAB CONTENT */
+.tab-content{flex:1;overflow-y:auto;scrollbar-width:none;}
+.tab-content::-webkit-scrollbar{display:none;}
+.tabpane{display:none;padding:8px;}
+.tabpane.on{display:block;}
+
+/* TICKETS */
+.play-hdr{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--dim);margin-bottom:6px;}
+.add-btn{background:#0e2a18;border:1px solid var(--green);color:var(--green);border-radius:5px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;}
+.add-btn:disabled{opacity:.35;cursor:not-allowed;}
+.ticket{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;margin-bottom:6px;cursor:pointer;}
+.ticket.active-t{border-color:var(--green);}
+.t-hdr2{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.t-id2{font-size:10px;color:var(--dim);}
+.t-st{font-size:10px;font-weight:700;}
+.t-nums2{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px;}
+.tn2{width:26px;height:26px;border-radius:4px;background:#2a2a2a;border:1px solid #3a3a3a;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#bbb;}
+.tn2.th{background:#0a2a14;border-color:var(--green);color:var(--green);}
+.tn2.te{background:#111;border-color:#1a1a1a;color:#222;}
+.t-ft2{display:flex;justify-content:space-between;align-items:center;}
+.t-bet2{font-size:10px;color:var(--dim);}
+.t-res2{font-size:12px;font-weight:700;}
+.t-del{background:none;border:none;color:#555;font-size:14px;cursor:pointer;padding:0 4px;}
+
+/* RESULTS */
+.res-ticket{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:8px 10px;margin-bottom:6px;}
+.res-hdr{display:flex;justify-content:space-between;margin-bottom:5px;}
+.res-id{font-size:10px;color:var(--dim);}
+.res-picks{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px;}
+.rpn{width:26px;height:26px;border-radius:4px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;background:#2a2a2a;border:1px solid #3a3a3a;color:#bbb;}
+.rpn.rw{background:#0a2a14;border-color:var(--green);color:var(--green);}
+.res-ft{display:flex;justify-content:space-between;margin-bottom:4px;}
+.res-dl{font-size:9px;color:var(--dim);margin-bottom:2px;}
+.res-drawn{display:flex;flex-wrap:wrap;gap:2px;}
+.rdn{font-size:9px;background:#222;border-radius:3px;padding:2px 4px;color:#888;}
+.rdn.rdh{background:#0a2a14;color:var(--green);}
+
+/* HISTORY */
+.h-row2{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:8px 10px;margin-bottom:5px;}
+.h-top2{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.h-nums2{display:flex;flex-wrap:wrap;gap:2px;}
+.hn2{font-size:9px;color:#999;background:#2a2a2a;border-radius:3px;padding:2px 4px;}
+
+/* STATS */
+.st-hdr{display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:8px;}
+.st-row{display:flex;align-items:center;gap:6px;background:#1a1a1a;border-radius:5px;padding:6px 8px;margin-bottom:4px;}
+.st-rank{font-size:10px;color:var(--dim);width:18px;}
+.st-bw{flex:1;height:5px;background:#2a2a2a;border-radius:3px;}
+.st-bar{height:5px;background:var(--green);border-radius:3px;transition:width .5s;}
+.st-num{font-size:11px;font-weight:700;width:26px;text-align:right;}
+
+.empty{text-align:center;color:var(--dim);padding:24px;font-size:12px;}
+
+/* WIN OVERLAY */
+.winov{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.87);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.winov.on{opacity:1;pointer-events:all;}
+.wcard{background:#0a1e10;border:2px solid var(--green);border-radius:16px;padding:28px 36px;text-align:center;box-shadow:0 0 50px rgba(46,204,113,.35);animation:wpop .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes wpop{0%{transform:scale(.5);}100%{transform:scale(1);}}
+.wl{font-size:10px;color:var(--dim);letter-spacing:3px;margin-bottom:8px;}
+.wa{font-family:'Orbitron',sans-serif;font-size:38px;font-weight:900;color:var(--green);margin-bottom:6px;}
+.wsu{font-size:12px;color:#999;margin-bottom:20px;}
+.wok{padding:12px 32px;border-radius:8px;border:none;background:var(--green2);color:#fff;font-size:13px;font-weight:700;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- WIN OVERLAY -->
+<div class="winov" id="winov">
+  <div class="wcard">
+    <div class="wl">YOU WIN</div>
+    <div class="wa" id="wamt">0.00</div>
+    <div class="wsu" id="wsub2">0 matches</div>
+    <button class="wok" onclick="closeWin()">COLLECT</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo"><span class="lf">FAST</span><span class="lk">KENO</span></div>
+  <div class="hdr-r">
+    <div class="balpill"><span id="balv">1000.00</span><span>ETB</span></div>
+    <div class="idpill">ID: <span id="uid">232166</span> ✓</div>
+    <span class="hi">☰</span>
+    <span class="hi">💬</span>
+  </div>
+</div>
+
+<!-- DRAW AREA -->
+<div class="draw-area">
+  <div class="cd-row">
+    <div class="cd" id="cddisp">00 : 60</div>
+    <div class="dc" id="dccnt"></div>
+  </div>
+
+  <!-- WAIT / PICK STATE -->
+  <div id="waitWrap" style="width:100%;">
+    <!-- Possible Win Card (shows when picks > 0) -->
+    <div class="pw-card" id="pwCard" style="display:none;">
+      <div class="pw-title">Possible Win: <span id="pwBest">0</span> ETB</div>
+      <div class="pw-rows">
+        <div class="pw-row">
+          <span class="pw-label">Matches</span>
+          <div class="pw-vals" id="pwMatchRow"></div>
+        </div>
+        <div class="pw-row" style="margin-top:2px;">
+          <span class="pw-label">Multiplier</span>
+          <div class="pw-vals" id="pwMultRow"></div>
+        </div>
+        <div class="pw-row" style="margin-top:2px;">
+          <span class="pw-label">Win ETB</span>
+          <div class="pw-vals" id="pwWinRow"></div>
+        </div>
+      </div>
+      <div class="pw-picks" id="pwPicks"></div>
+      <div class="pw-help">?</div>
+    </div>
+    <!-- No picks state -->
+    <div class="wait-wrap" id="noPickWrap">
+      <div class="wait-balls">
+        <div class="wball sm">80</div>
+        <div class="wball sm">70</div>
+        <div class="wball lg">1</div>
+      </div>
+      <div class="wait-title" id="wtitle">Select up to 10 numbers</div>
+      <div class="wait-sub" id="wsub3">from 1 to 80</div>
+    </div>
+  </div>
+
+  <!-- DRAW STATE -->
+  <div class="draw-wrap" id="drawWrap">
+    <div class="bigball" id="bigball">—</div>
+    <div class="minirow" id="minirow"></div>
+  </div>
+</div>
+
+<!-- MAIN SCROLL -->
+<div class="main-scroll">
+
+  <!-- GRID -->
+  <div class="grid-section">
+    <div class="keno-grid" id="grid"></div>
+  </div>
+
+  <!-- BET ROW -->
+  <div class="bet-row">
+    <div class="bbt" onclick="cbet(-1)">−</div>
+    <div class="bval" id="betdisp">5.00</div>
+    <div class="bbt" onclick="cbet(1)">+</div>
+    <div class="bx2" onclick="dobx2()">X2</div>
+    <div class="bmax" onclick="dobmax()">MAX</div>
+    <div class="bset">⚙</div>
+  </div>
+
+  <!-- PLAY BUTTON -->
+  <button class="play-btn" id="playbtn" onclick="manualPlay()">PLAY</button>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab on" data-t="play" onclick="swTab('play')">▶ Play</div>
+    <div class="tab" data-t="results" onclick="swTab('results')">✓ Results</div>
+    <div class="tab" data-t="history" onclick="swTab('history')">↺ History</div>
+    <div class="tab" data-t="stats" onclick="swTab('stats')">📊 Stats</div>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <div class="tab-content">
+    <div class="tabpane on" id="tp-play">
+      <div class="play-hdr">
+        <span>Total: <b id="totalbet">0.00</b> ETB &nbsp;·&nbsp; Tickets: <b id="tcount">0</b> &nbsp;·&nbsp; Wins: <b id="wcount">0</b></span>
+        <button class="add-btn" id="addtbtn" onclick="addTicketSlot()">+ Add</button>
+      </div>
+      <div id="ticketlist"></div>
+    </div>
+    <div class="tabpane" id="tp-results">
+      <div id="reslist"><div class="empty">Results appear after each round.</div></div>
+    </div>
+    <div class="tabpane" id="tp-history">
+      <div id="histlist"><div class="empty">No history yet.</div></div>
+    </div>
+    <div class="tabpane" id="tp-stats">
+      <div class="st-hdr"><span>Hot Numbers</span><span style="color:var(--green)">Recent draws</span></div>
+      <div id="statslist"><div class="empty">Play rounds to see stats.</div></div>
+    </div>
+  </div>
+
+</div><!-- main-scroll -->
+</div><!-- app -->
+
+<script>
+// ══════════════════════════════════
+// PAYTABLE
+// ══════════════════════════════════
+const PAYS={
+  1:[0,3.5],2:[0,0,5],3:[0,0,2,8],4:[0,0,1,4,20],
+  5:[0,0,0,3,8,50],6:[0,0,0,2,5,20,100],
+  7:[0,0,0,0,3,8,30,200],8:[0,0,0,0,2,5,20,80,500],
+  9:[0,0,0,0,1,3,10,40,150,1000],10:[0,0,0,0,1,2,5,20,60,300,2000]
+};
+
+// ══════════════════════════════════
+// STATE
+// ══════════════════════════════════
+let bal=1000, bet=5;
+let tickets=[];        // [{picks:Set, betAmt, status, hits, win, mult}]
+let activeIdx=0;
+let draws=[];
+let drawing=false;
+let cdVal=60, cdTimer=null;
+let roundId=232166;
+let histData=[], statsMap={}, winsTotal=0;
+
+const fmt=v=>Number(v).toFixed(2);
+const upBal=()=>document.getElementById('balv').textContent=fmt(bal);
+
+// ══════════════════════════════════
+// GRID BUILD
+// ══════════════════════════════════
+const gridEl=document.getElementById('grid');
+for(let i=1;i<=80;i++){
+  const c=document.createElement('div');
+  c.className='cell';c.textContent=i;c.dataset.n=i;
+  c.addEventListener('click',()=>pickNum(i));
+  gridEl.appendChild(c);
+}
+const getCell=n=>gridEl.querySelector(`[data-n="${n}"]`);
+
+// ══════════════════════════════════
+// PICK
+// ══════════════════════════════════
+function pickNum(n){
+  if(drawing)return;
+  if(!tickets.length) createTicketSlot();
+  const t=tickets[activeIdx];
+  if(!t||t.status!=='pending')return;
+  if(t.picks.has(n)){t.picks.delete(n);getCell(n).className='cell';}
+  else{if(t.picks.size>=10)return;t.picks.add(n);getCell(n).className='cell sel';}
+  updPossibleWin();
+  renderTickets();
+}
+
+// ══════════════════════════════════
+// POSSIBLE WIN DISPLAY
+// ══════════════════════════════════
+function updPossibleWin(){
+  const t=tickets[activeIdx];
+  const sz=t?t.picks.size:0;
+  const pwCard=document.getElementById('pwCard');
+  const noPickWrap=document.getElementById('noPickWrap');
+
+  if(sz===0){
+    pwCard.style.display='none';
+    noPickWrap.style.display='flex';
+    noPickWrap.querySelector('#wtitle').textContent='Select up to 10 numbers';
+    noPickWrap.querySelector('#wsub3').textContent='from 1 to 80';
+    return;
+  }
+
+  // Show no-pick wrap with updated text briefly, then show card
+  noPickWrap.style.display='none';
+  pwCard.style.display='block';
+
+  const table=PAYS[sz]||[];
+  const matchRow=document.getElementById('pwMatchRow');
+  const multRow=document.getElementById('pwMultRow');
+  const winRow=document.getElementById('pwWinRow');
+
+  // Show columns from min match to sz
+  const minMatch=Math.max(0,table.findIndex(v=>v>0));
+  let matchHtml='',multHtml='',winHtml='';
+  for(let m=minMatch;m<=sz;m++){
+    const mult=table[m]||0;
+    const winAmt=(mult*bet).toFixed(2);
+    const cls=mult>0?'':(m===0?'':'');
+    matchHtml+=`<div class="pw-val">${m}</div>`;
+    multHtml+=`<div class="pw-val ${mult>0?'active-col':''}">${mult>0?'x'+mult:'—'}</div>`;
+    winHtml+=`<div class="pw-val ${mult>0?'hit-col':''}">${mult>0?winAmt:'—'}</div>`;
+  }
+  matchRow.innerHTML=matchHtml;
+  multRow.innerHTML=multHtml;
+  winRow.innerHTML=winHtml;
+
+  // Best possible
+  const maxMult=Math.max(...table);
+  document.getElementById('pwBest').textContent=fmt(maxMult*bet);
+
+  // Picked numbers di
