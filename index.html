@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Fast Keno — Lucky Draw</title>
+    <title>Fast Keno</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
     <style>
         * {
@@ -15,6 +15,7 @@
         :root {
             --bg: #0d0d0d;
             --cell: #2a2a2a;
+            --cell-drawn: #1e1e1e;
             --green: #2ecc71;
             --green2: #27ae60;
             --orange: #e67e22;
@@ -28,7 +29,7 @@
         body {
             height: 100%;
             overflow: hidden;
-            background: var(--bg);
+            background: #0a0a0a;
         }
         body {
             font-family: 'Roboto', sans-serif;
@@ -37,6 +38,7 @@
             flex-direction: column;
             max-width: 480px;
             margin: 0 auto;
+            background: #0d0d0d;
         }
         .app {
             display: flex;
@@ -48,460 +50,608 @@
         /* HEADER */
         .hdr {
             flex-shrink: 0;
-            background: #111;
+            background: #0a0a0a;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 12px;
-            border-bottom: 1px solid #222;
+            padding: 6px 10px;
+            border-bottom: 1px solid #1a1a1a;
         }
         .logo {
             display: flex;
             flex-direction: column;
-            line-height: 1.1;
+            line-height: 1;
         }
         .lf {
             font-family: 'Orbitron', sans-serif;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
             color: var(--green);
-            letter-spacing: 3px;
+            letter-spacing: 2px;
         }
         .lk {
             font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 900;
             color: #fff;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
         .hdr-r {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .balpill {
-            background: #222;
-            border: 1px solid #3a3a3a;
-            border-radius: 20px;
-            padding: 5px 12px;
-            font-size: 13px;
+            background: #111;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            padding: 4px 10px;
+            font-size: 11px;
             font-weight: 700;
-            color: var(--gold);
+            color: #ccc;
         }
         .balpill span {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--dim);
             font-weight: 400;
-            margin-left: 3px;
+            margin-left: 2px;
         }
         .idpill {
-            background: #0a2a18;
-            border: 1px solid var(--green);
-            border-radius: 20px;
-            padding: 5px 10px;
-            font-size: 11px;
+            background: #0a0a0a;
+            border: 1px solid #1a3a1a;
+            border-radius: 16px;
+            padding: 4px 8px;
+            font-size: 9px;
             color: var(--green);
             font-weight: 600;
-        }
-        .hi {
-            font-size: 20px;
-            color: var(--dim);
-            cursor: pointer;
         }
 
         /* DRAW AREA */
         .draw-area {
             flex-shrink: 0;
-            background: radial-gradient(ellipse at 50% -10%, #0a3020 0%, #0d0d0d 65%);
+            background: #0a0a0a;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 8px 12px 8px;
-            border-bottom: 2px solid #1a1a1a;
+            padding: 6px 10px;
+            border-bottom: 1px solid #1a1a1a;
             position: relative;
         }
         .cd-row {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             width: 100%;
-            position: relative;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .cd {
             font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--green);
-            letter-spacing: 5px;
-            transition: color .3s;
+            letter-spacing: 3px;
         }
         .dc {
-            position: absolute;
-            right: 0;
-            font-size: 11px;
-            color: var(--dim);
-        }
-        .draw-notice {
             font-size: 10px;
             color: var(--dim);
-            text-align: center;
-            margin-bottom: 4px;
         }
 
-        /* POSSIBLE WIN CARD */
-        .pw-card {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid #2a3a2a;
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-bottom: 4px;
-            position: relative;
-        }
-        .pw-rows {
+        /* DRAWN NUMBERS ROW (shows the drawn balls in normal style) */
+        .drawn-numbers-row {
             display: flex;
-            flex-direction: column;
-            gap: 3px;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+            width: 100%;
+            padding: 4px 0;
+            min-height: 36px;
+            align-items: center;
         }
-        .pw-row {
+        .drawn-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            color: #ccc;
             display: flex;
             align-items: center;
-            gap: 0;
-        }
-        .pw-label {
-            font-size: 10px;
-            color: var(--dim);
-            width: 56px;
-            flex-shrink: 0;
-        }
-        .pw-vals {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-        .pw-val {
+            justify-content: center;
             font-size: 10px;
             font-weight: 700;
-            color: #bbb;
-            background: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 4px;
-            padding: 2px 6px;
-            min-width: 32px;
-            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.2s;
         }
-        .pw-val.hc {
+        .drawn-num.hit-num {
             background: #0a2a14;
             border-color: var(--green);
             color: var(--green);
         }
 
-        /* WAIT */
-        .wait-wrap {
+        /* TABS */
+        .tabs {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-        .wait-balls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .wball {
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 28%, #445566, #1a1a2a 75%);
-            border: 2px solid #3a4a5a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 900;
-            color: #fff;
-        }
-        .wball.sm {
-            width: 38px;
-            height: 38px;
-            font-size: 11px;
-        }
-        .wball.lg {
-            width: 46px;
-            height: 46px;
-            font-size: 18px;
-        }
-        .wait-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #fff;
-        }
-        .wait-sub {
-            font-size: 11px;
-            color: var(--dim);
-        }
-
-        /* DRAW STATE */
-        .draw-wrap {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            gap: 10px;
-        }
-        .bigball-container {
-            position: relative;
-            width: 80px;
-            height: 80px;
+            border-bottom: 1px solid #1a1a1a;
+            background: #0a0a0a;
             flex-shrink: 0;
-        }
-        .bigball-outer {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 38% 30%, #ffd700 0%, #c8960a 30%, #8b6914 55%, #3d2b00 80%, #1a1000 100%);
-            border: 3px solid #f0b429;
-            box-shadow: 0 0 30px rgba(240, 180, 41, 0.55), 0 0 60px rgba(240, 180, 41, 0.25), 0 8px 24px rgba(0, 0, 0, 0.7), inset 0 2px 6px rgba(255, 255, 255, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 2;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .bigball-outer.pop {
-            animation: bpop .35s ease;
-        }
-        .bigball-outer.milestone-hit {
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.9), 0 0 90px rgba(255, 180, 0, 0.55), 0 8px 24px rgba(0, 0, 0, 0.7), inset 0 2px 6px rgba(255, 255, 255, 0.3);
-        }
-        .bigball-inner {
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 32% 26%, #fff8e0 0%, #e8c840 18%, #b8860b 45%, #5c3d00 75%, #261800 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 28px;
-            font-weight: 900;
-            color: #1a0a00;
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.4);
-            border: 2px solid rgba(255, 215, 0, 0.6);
-        }
-        .bigball-sparkle {
-            position: absolute;
-            inset: -12px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1;
-            background: transparent;
-        }
-        .bigball-sparkle.active {
-            animation: sparklePulse 0.6s ease-out;
-        }
-        @keyframes bpop {
-            0% {
-                transform: scale(.3);
-                opacity: 0;
-            }
-            65% {
-                transform: scale(1.15);
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        @keyframes sparklePulse {
-            0% {
-                box-shadow: 0 0 0 rgba(255, 215, 0, 0), 0 0 0 rgba(255, 200, 0, 0);
-            }
-            40% {
-                box-shadow: 0 0 40px rgba(255, 215, 0, 0.9), 0 0 80px rgba(255, 180, 0, 0.6);
-            }
-            100% {
-                box-shadow: 0 0 0 rgba(255, 215, 0, 0), 0 0 0 rgba(255, 200, 0, 0);
-            }
-        }
-
-        /* DRAW GRID */
-        .draw-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 4px;
             width: 100%;
-            padding: 0 2px;
+            gap: 0;
         }
-        .mb {
-            aspect-ratio: 1;
-            border-radius: 50%;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 9px;
-            font-weight: 700;
-            color: #ddd;
-            opacity: 0;
-            transition: opacity .2s, transform .25s, box-shadow .25s;
-            cursor: default;
-            background: radial-gradient(circle at 35% 28%, #6a7a8a 0%, #3a4455 35%, #1a1a28 70%, #0a0a16 100%);
-            border: 1.5px solid #556;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+        .tab {
+            flex: 1;
+            padding: 9px 1px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: #555;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+            user-select: none;
+            background: transparent;
+            letter-spacing: 0.5px;
         }
-        .mb.show {
-            opacity: 1;
-        }
-        .mb.mh {
-            background: radial-gradient(circle at 35% 28%, #3ecc71 0%, #1a8040 35%, #084020 70%, #031a0c 100%);
-            border-color: #2ecc71;
+        .tab.on {
             color: #fff;
-            box-shadow: 0 0 12px rgba(46, 204, 113, 0.7), 0 3px 8px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(255, 255, 255, 0.2);
+            border-bottom-color: var(--green);
         }
-        .mb.empty-slot {
-            opacity: 0.12;
-            background: #1a1a1a;
-            border-color: #2a2a2a;
-            box-shadow: none;
+        .tab:active {
+            background: #111;
+            transform: scale(0.96);
         }
 
-        /* MAIN SCROLL (holds grid, bet row, play button, tabs) */
+        /* MAIN SCROLL */
         .main-scroll {
             flex: 1;
             overflow-y: auto;
             scrollbar-width: none;
             display: flex;
             flex-direction: column;
+            background: #0d0d0d;
         }
         .main-scroll::-webkit-scrollbar {
             display: none;
         }
 
-        /* GRID */
-        .grid-section {
-            padding: 5px 6px 4px;
-            background: var(--bg);
-        }
-        .keno-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 3px;
-        }
-        .cell {
-            aspect-ratio: 1;
-            border-radius: 5px;
-            background: var(--cell);
-            border: 1px solid #3a3a3a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-            color: #bbb;
-            cursor: pointer;
-            position: relative;
-            user-select: none;
-            transition: background .1s, border .1s, color .1s;
-        }
-        .cell:active {
-            transform: scale(.88);
-        }
-        .cell.sel {
-            background: #1a3520;
-            border-color: var(--green);
-            color: var(--green);
-        }
-        /* ... other cell styles ... */
-
-        /* BET ROW */
-        .bet-row {
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px;
-            background: #111;
-            border-top: 1px solid #222;
-        }
-        /* ... bet controls unchanged ... */
-
-        /* PLAY BUTTON */
-        .play-btn {
-            margin: 7px 8px 0;
-            padding: 14px;
-            border-radius: 8px;
-            background: linear-gradient(180deg, #2ecc71 0%, #1a8a42 100%);
-            border: none;
-            color: #fff;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            cursor: pointer;
-            box-shadow: 0 3px 14px rgba(46, 204, 113, .28);
-            transition: all .15s;
-            flex-shrink: 0;
-            width: calc(100% - 16px);
-        }
-        /* ... */
-
-        /* TABS — now sticky inside main-scroll, always visible */
-        .tabs {
-            display: flex;
-            border-bottom: 2px solid #222;
-            margin-top: 8px;
-            background: #111;
-            flex-shrink: 0;
-            position: sticky;
-            top: 0;
-            z-index: 5;
-        }
-        .tab {
-            flex: 1;
-            padding: 10px 2px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--dim);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-            transition: all .2s;
-            user-select: none;
-            background: transparent;
-        }
-        .tab.on {
-            color: var(--green);
-            border-bottom-color: var(--green);
-        }
-
         /* TAB CONTENT */
         .tab-content {
-            flex: 1 0 auto;
-            overflow: visible;
-            scrollbar-width: none;
-        }
-        .tab-content::-webkit-scrollbar {
-            display: none;
+            flex: 1;
         }
         .tabpane {
             display: none;
-            padding: 8px;
+            padding: 6px 8px;
         }
         .tabpane.on {
             display: block;
         }
 
-        /* TICKET CARD etc. unchanged ... */
-        /* FAKE USER, RESULTS, HISTORY, STATS styles remain the same */
+        /* GAME TAB - Number Grid */
+        .keno-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 3px;
+            padding: 4px 0;
+        }
+        .cell {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #888;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            transition: all 0.1s;
+        }
+        .cell:active {
+            transform: scale(0.9);
+        }
+        .cell.sel {
+            background: #0e2a18;
+            border-color: var(--green);
+            color: var(--green);
+        }
+        /* Drawn number - NORMAL color (not golden) */
+        .cell.dc {
+            background: #1a1a1a;
+            border-color: #3a3a3a;
+            color: #ccc;
+        }
+        /* Hit/match - green */
+        .cell.hc {
+            background: #0a2a14;
+            border-color: var(--green);
+            color: var(--green);
+        }
+        .cell.fd {
+            opacity: 0.35;
+        }
+
+        /* BET ROW */
+        .bet-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            background: transparent;
+        }
+        .bbt {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .bval {
+            flex: 1;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .bx2 {
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: #0e2a18;
+            border: 1px solid var(--green);
+            color: var(--green);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .bmax {
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* PLAY BUTTON */
+        .play-btn {
+            margin: 0;
+            padding: 14px;
+            border-radius: 8px;
+            background: linear-gradient(180deg, #2ecc71 0%, #1a8a42 100%);
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(46, 204, 113, .2);
+            transition: all 0.15s;
+            width: 100%;
+        }
+        .play-btn:active {
+            transform: scale(0.98);
+        }
+        .play-btn.dr {
+            background: linear-gradient(180deg, #e67e22, #a04000);
+        }
+        .play-btn.locked {
+            background: linear-gradient(180deg, #1a6a35, #0d4020);
+        }
+        .play-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* HISTORY TAB */
+        .h-row {
+            background: #111;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 5px;
+        }
+        .h-top {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            font-size: 10px;
+        }
+        .h-nums-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 3px;
+        }
+        .h-num {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a1a;
+            color: #999;
+            border: 1px solid #222;
+        }
+        .h-num.hh {
+            background: #0a2a14;
+            color: var(--green);
+            border-color: #1a4a2a;
+        }
+
+        /* RESULTS TAB */
+        .res-round {
+            background: #111;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+        }
+        .res-round-hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 10px;
+        }
+        .res-round-id {
+            color: var(--green);
+            font-weight: 700;
+        }
+        .res-round-time {
+            color: var(--dim);
+        }
+        .res-picks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-bottom: 4px;
+        }
+        .rpn {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: #999;
+        }
+        .rpn.rw {
+            background: #0a2a14;
+            border-color: var(--green);
+            color: var(--green);
+        }
+        .res-ft {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-bottom: 4px;
+        }
+        .res-drawn {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+        }
+        .rdn {
+            font-size: 8px;
+            background: #1a1a1a;
+            border-radius: 3px;
+            padding: 2px 4px;
+            color: #999;
+        }
+        .rdn.rdh {
+            background: #0a2a14;
+            color: var(--green);
+        }
+
+        /* STATISTICS TAB */
+        .stats-section {
+            margin-bottom: 10px;
+        }
+        .stats-title {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .stats-title.hot {
+            color: #e74c3c;
+        }
+        .stats-title.cold {
+            color: var(--blue);
+        }
+        .stats-title.rate {
+            color: var(--gold);
+        }
+        .st-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #111;
+            border-radius: 4px;
+            padding: 4px 6px;
+            margin-bottom: 2px;
+            font-size: 9px;
+        }
+        .st-rank {
+            color: var(--dim);
+            width: 16px;
+            text-align: center;
+        }
+        .st-numball {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .st-numball.hot-ball {
+            background: radial-gradient(circle at 35% 28%, #e74c3c, #7a1010 78%);
+            color: #fff;
+        }
+        .st-numball.cold-ball {
+            background: radial-gradient(circle at 35% 28%, #3498db, #0a2a5a 78%);
+            color: #fff;
+        }
+        .st-numball.norm-ball {
+            background: radial-gradient(circle at 35% 28%, #444, #1a1a1a 78%);
+            color: #fff;
+        }
+        .st-bw {
+            flex: 1;
+            height: 4px;
+            background: #1a1a1a;
+            border-radius: 2px;
+        }
+        .st-bar {
+            height: 4px;
+            border-radius: 2px;
+            transition: width 0.6s;
+        }
+        .st-bar.hot-bar {
+            background: linear-gradient(90deg, #e74c3c, #ff7675);
+        }
+        .st-bar.cold-bar {
+            background: linear-gradient(90deg, #2980b9, #74b9ff);
+        }
+        .st-count {
+            font-size: 9px;
+            color: var(--dim);
+            width: 20px;
+            text-align: right;
+        }
+        .st-pct {
+            font-size: 9px;
+            font-weight: 700;
+            width: 30px;
+            text-align: right;
+        }
+        .rate-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+        }
+        .rate-cell {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            font-weight: 700;
+            gap: 0px;
+        }
+        .rate-cell .rn {
+            font-size: 9px;
+        }
+        .rate-cell .rp {
+            font-size: 6px;
+        }
+
+        /* LEADERS TAB */
+        .leaders-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+        .leaders-table th {
+            background: #111;
+            color: var(--dim);
+            padding: 6px 4px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 9px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .leaders-table td {
+            padding: 7px 4px;
+            border-bottom: 1px solid #111;
+            color: #ccc;
+        }
+        .leaders-table .l-rank {
+            color: var(--dim);
+            width: 24px;
+            text-align: center;
+        }
+        .leaders-table .l-name {
+            color: #ddd;
+        }
+        .leaders-table .l-win {
+            color: var(--green);
+            font-weight: 700;
+            text-align: right;
+        }
+        .leaders-table .l-bet {
+            color: var(--dim);
+            text-align: center;
+        }
+        .leaders-table tr.top1 .l-name {
+            color: #ffd700;
+            font-weight: 700;
+        }
+        .leaders-table tr.top2 .l-name {
+            color: #c0c0c0;
+            font-weight: 700;
+        }
+        .leaders-table tr.top3 .l-name {
+            color: #cd7f32;
+            font-weight: 700;
+        }
+
+        .empty {
+            text-align: center;
+            color: var(--dim);
+            padding: 24px;
+            font-size: 11px;
+        }
+        .section-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--dim);
+            text-transform: uppercase;
+            margin: 8px 0 4px;
+            padding-bottom: 2px;
+            border-bottom: 1px solid #1a1a1a;
+        }
 
         /* WIN OVERLAY */
         .winov {
             position: fixed;
             inset: 0;
             z-index: 300;
-            background: rgba(0, 0, 0, .87);
+            background: rgba(0, 0, 0, .9);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -513,12 +663,50 @@
             opacity: 1;
             pointer-events: all;
         }
-        /* ... */
-
-        /* Improved touch feedback */
-        .tab:active {
-            background: #1a1a1a;
-            transform: scale(0.97);
+        .wcard {
+            background: #0a1e10;
+            border: 2px solid var(--green);
+            border-radius: 16px;
+            padding: 24px 30px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(46, 204, 113, .35);
+            animation: wpop .4s cubic-bezier(.34, 1.56, .64, 1);
+        }
+        @keyframes wpop {
+            0% {
+                transform: scale(.5);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .wl {
+            font-size: 10px;
+            color: var(--dim);
+            letter-spacing: 3px;
+            margin-bottom: 6px;
+        }
+        .wa {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--green);
+            margin-bottom: 4px;
+        }
+        .wsu {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 16px;
+        }
+        .wok {
+            padding: 10px 28px;
+            border-radius: 8px;
+            border: none;
+            background: var(--green2);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -539,8 +727,7 @@
             <div class="logo"><span class="lf">FAST</span><span class="lk">KENO</span></div>
             <div class="hdr-r">
                 <div class="balpill"><span id="balv">1000.00</span><span>ETB</span></div>
-                <div class="idpill">ID: <span id="uid">232166</span> ✓</div>
-                <span class="hi">☰</span><span class="hi">💬</span>
+                <div class="idpill">ID: <span id="uid">232166</span></div>
             </div>
         </div>
 
@@ -548,86 +735,39 @@
         <div class="draw-area">
             <div class="cd-row">
                 <div class="cd" id="cddisp">00 : 60</div>
-                <div class="dc" id="dccnt"></div>
+                <div class="dc" id="dccnt">0 / 20</div>
             </div>
-            <div class="draw-notice" id="drawNotice">Drawing starts when countdown reaches 00:00</div>
-
-            <!-- WAIT STATE -->
-            <div id="waitWrap" style="width:100%;">
-                <div class="pw-card" id="pwCard" style="display:none;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                        <div style="font-size:12px;font-weight:700;">Possible Win</div>
-                        <div style="font-size:11px;color:var(--green);font-weight:700;">Max: <span id="pwBest">0</span> ETB</div>
-                    </div>
-                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;" id="pwTable"></div>
-                    <div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:3px;" id="pwPicks"></div>
-                </div>
-                <div class="wait-wrap" id="noPickWrap">
-                    <div class="wait-balls">
-                        <div class="wball sm">80</div><div class="wball sm">70</div><div class="wball lg">1</div>
-                    </div>
-                    <div class="wait-title" id="wtitle">Select up to 10 numbers</div>
-                    <div class="wait-sub" id="wsub3">from 1 to 80</div>
-                </div>
-            </div>
-
-            <!-- DRAW STATE -->
-            <div class="draw-wrap" id="drawWrap">
-                <div class="bigball-container" id="bigballContainer">
-                    <div class="bigball-sparkle" id="bigballSparkle"></div>
-                    <div class="bigball-outer" id="bigballOuter">
-                        <div class="bigball-inner" id="bigball">—</div>
-                    </div>
-                </div>
-                <div class="draw-grid" id="drawGrid"></div>
-                <div class="match-indicator-row" id="matchIndicator" style="display:none;">
-                    <span class="mi-label">Matches:</span>
-                    <span id="matchDots"></span>
-                </div>
+            <!-- Drawn numbers displayed as normal balls -->
+            <div class="drawn-numbers-row" id="drawnNumbersRow">
+                <span style="font-size:10px;color:#444;">Waiting for draw...</span>
             </div>
         </div>
 
-        <!-- MAIN SCROLLABLE AREA (contains grid, bet, play button, tabs) -->
+        <!-- TABS -->
+        <div class="tabs">
+            <div class="tab on" data-t="game" onclick="swTab('game')">GAME</div>
+            <div class="tab" data-t="history" onclick="swTab('history')">HISTORY</div>
+            <div class="tab" data-t="results" onclick="swTab('results')">RESULTS</div>
+            <div class="tab" data-t="stats" onclick="swTab('stats')">STATISTICS</div>
+            <div class="tab" data-t="leaders" onclick="swTab('leaders')">LEADERS</div>
+        </div>
+
+        <!-- MAIN SCROLL -->
         <div class="main-scroll">
-            <div class="grid-section">
-                <div class="keno-grid" id="grid"></div>
-            </div>
-
-            <div class="bet-row">
-                <div class="bbt" onclick="cbet(-1)">−</div>
-                <div class="bval" id="betdisp">5.00</div>
-                <div class="bbt" onclick="cbet(1)">+</div>
-                <div class="bx2" onclick="dobx2()">X2</div>
-                <div class="bmax" onclick="dobmax()">MAX</div>
-                <div class="bset">⚙</div>
-            </div>
-
-            <button class="play-btn" id="playbtn" onclick="manualPlay()">BET / LOCK TICKET</button>
-
-            <!-- TABS -->
-            <div class="tabs">
-                <div class="tab on" data-t="play" onclick="swTab('play')">▶ Play</div>
-                <div class="tab" data-t="results" onclick="swTab('results')">✓ Results</div>
-                <div class="tab" data-t="history" onclick="swTab('history')">↺ History</div>
-                <div class="tab" data-t="stats" onclick="swTab('stats')">📊 Stats</div>
-            </div>
-
-            <!-- TAB CONTENT -->
             <div class="tab-content">
-                <!-- PLAY TAB -->
-                <div class="tabpane on" id="tp-play">
-                    <div class="play-hdr">
-                        <span>Locked: <b id="tcount" style="color:var(--green)">0</b>/20 &nbsp;·&nbsp; Total: <b id="totalbet">0.00</b> ETB</span>
-                        <button class="add-btn" id="addtbtn" onclick="addTicketSlot()">+ Add</button>
+                <!-- GAME TAB -->
+                <div class="tabpane on" id="tp-game">
+                    <div class="keno-grid" id="grid"></div>
+                    <div class="bet-row">
+                        <div class="bbt" onclick="cbet(-1)">−</div>
+                        <div class="bval" id="betdisp">1000</div>
+                        <div class="bbt" onclick="cbet(1)">+</div>
+                        <div class="bx2" onclick="dobx2()">X2</div>
+                        <div class="bmax" onclick="dobmax()">MAX</div>
                     </div>
+                    <button class="play-btn" id="playbtn" onclick="manualPlay()">START GAME</button>
+                    <div class="section-label" style="margin-top:10px;">My Tickets</div>
                     <div id="ticketlist"></div>
-                    <div class="section-label" id="fuserLabel">🟢 Other Players This Round</div>
-                    <div id="fuserList"></div>
-                </div>
-
-                <!-- RESULTS TAB -->
-                <div class="tabpane" id="tp-results">
-                    <div id="reslist"><div class="empty">Your ticket results will appear here after each round.</div></div>
                 </div>
 
                 <!-- HISTORY TAB -->
@@ -635,34 +775,28 @@
                     <div id="histlist"><div class="empty">No drawing history yet.</div></div>
                 </div>
 
-                <!-- STATS TAB -->
+                <!-- RESULTS TAB -->
+                <div class="tabpane" id="tp-results">
+                    <div id="reslist"><div class="empty">Your ticket results will appear here after each round.</div></div>
+                </div>
+
+                <!-- STATISTICS TAB -->
                 <div class="tabpane" id="tp-stats">
                     <div id="statslist"><div class="empty">Play rounds to see number statistics.</div></div>
+                </div>
+
+                <!-- LEADERS TAB -->
+                <div class="tabpane" id="tp-leaders">
+                    <div id="leaderslist">
+                        <div class="section-label">🏆 Top Winners</div>
+                        <div id="leadersTable"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // All Keno game logic remains exactly the same.
-        // The only change: improved tab switching reliability.
-        function swTab(t) {
-            // Remove 'on' from all tabs and panes
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('on'));
-            document.querySelectorAll('.tabpane').forEach(pane => pane.classList.remove('on'));
-
-            // Activate selected tab
-            const tabBtn = document.querySelector(`.tab[data-t="${t}"]`);
-            if (tabBtn) tabBtn.classList.add('on');
-
-            const pane = document.getElementById('tp-' + t);
-            if (pane) pane.classList.add('on');
-        }
-
-        // (The rest of the original script is unchanged, just ensure that
-        //  the createTicketSlot, renderTickets, startDraw, etc. functions are included.)
-        // I'll append the full script below for completeness.
-
         // ══════════════════════════
         // PAYTABLE
         // ══════════════════════════
@@ -679,22 +813,59 @@
             10: [0, 0, 0, 0, 1, 4, 20, 100, 500, 2000, 10000]
         };
 
-        // Milestone draw positions (0-indexed): 1st, 5th, 10th, 15th, 20th
-        const MILESTONE_INDICES = new Set([0, 4, 9, 14, 19]);
-        const MILESTONE_CLASSES = {
-            0: 'milestone-1',
-            4: 'milestone-5',
-            9: 'milestone-10',
-            14: 'milestone-15',
-            19: 'milestone-20'
-        };
-        const MILESTONE_LABELS = {
-            0: '1st',
-            4: '5th',
-            9: '10th',
-            14: '15th',
-            19: '20th'
-        };
+        // ══════════════════════════
+        // LEADERS DATA (fake top winners, updated each round)
+        // ══════════════════════════
+        let leadersData = [];
+
+        function initLeaders() {
+            const names = ['y***v', 'y***m', 'd***k', 'q***w', 'x***o', 'z***y', 'b***p', 'k***s', 't***r', 'm***n',
+                'a***l', 'h***f', 'r***g', 's***d', 'j***e'
+            ];
+            leadersData = names.map((name, i) => ({
+                name: name,
+                bet: [700, 1000, 1000, 1000, 1000, 1000, 500, 800, 1000, 1000, 1000, 500, 1000, 1000, 1000][
+                    i
+                ],
+                win: [30000, 30000, 30000, 30000, 30000, 30000, 15000, 24000, 30000, 20000, 10000, 5000, 30000,
+                    30000, 15000
+                ][i]
+            }));
+            leadersData.sort((a, b) => b.win - a.win);
+        }
+
+        function updateLeadersAfterRound() {
+            // Occasionally add a new winner to the leaderboard
+            if (Math.random() < 0.4 && leadersData.length > 0) {
+                const newWinner = {
+                    name: ['l***x', 'p***q', 'f***c', 'n***h', 'u***y'][Math.floor(Math.random() * 5)],
+                    bet: [500, 1000, 1000, 700, 1000][Math.floor(Math.random() * 5)],
+                    win: [5000, 10000, 15000, 20000, 30000][Math.floor(Math.random() * 5)]
+                };
+                leadersData.push(newWinner);
+                leadersData.sort((a, b) => b.win - a.win);
+                if (leadersData.length > 15) leadersData = leadersData.slice(0, 15);
+            }
+            renderLeaders();
+        }
+
+        function renderLeaders() {
+            const el = document.getElementById('leadersTable');
+            if (!leadersData.length) { initLeaders(); }
+            let html = `<table class="leaders-table">
+            <thead><tr><th>#</th><th>ID</th><th>Game</th><th>Win</th></tr></thead><tbody>`;
+            leadersData.forEach((l, i) => {
+                const rowClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+                html += `<tr class="${rowClass}">
+              <td class="l-rank">${i+1}</td>
+              <td class="l-name">${l.name}</td>
+              <td class="l-bet">${l.bet}</td>
+              <td class="l-win">${l.win.toLocaleString()} ETB</td>
+            </tr>`;
+            });
+            html += '</tbody></table>';
+            el.innerHTML = html;
+        }
 
         // ══════════════════════════
         // FAKE USERS DATA
@@ -720,7 +891,7 @@
 
         function genFakeUsers() {
             fakeUsers = [];
-            const count = randInt(6, 15);
+            const count = randInt(6, 12);
             const used = new Set();
             for (let i = 0; i < count; i++) {
                 let idx;
@@ -751,40 +922,11 @@
             });
         }
 
-        function renderFakeUsers(phase) {
-            const el = document.getElementById('fuserList');
-            const lbl = document.getElementById('fuserLabel');
-            if (phase === 'betting') {
-                lbl.textContent = '🟢 Other Players This Round';
-                el.innerHTML = fakeUsers.map(u => `
-              <div class="fuser">
-                <div class="fuser-avatar" style="background:${u.color};">${u.initials}</div>
-                <div class="fuser-info">
-                  <div class="fuser-name">${u.name}</div>
-                  <div class="fuser-picks">${u.picks.length} picks · ${u.picks.slice(0,5).join(', ')}${u.picks.length>5?'...':''}</div>
-                </div>
-                <div class="fuser-bet">${u.bet} ETB</div>
-              </div>`).join('');
-            } else {
-                lbl.textContent = '🏆 Round Results — All Players';
-                const sorted = [...fakeUsers].sort((a, b) => b.win - a.win);
-                el.innerHTML = sorted.map((u, i) => `
-              <div class="fuser">
-                <div class="fuser-avatar" style="background:${u.color};">${u.initials}</div>
-                <div class="fuser-info">
-                  <div class="fuser-name">${u.name}</div>
-                  <div class="fuser-picks">${u.hits}/${u.picks.length} matched</div>
-                </div>
-                <div class="fuser-win" style="color:${u.win>0?'var(--green)':'#555'}">${u.win>0?'+'+u.win+' ETB':'—'}</div>
-              </div>`).join('');
-            }
-        }
-
         // ══════════════════════════
         // STATE
         // ══════════════════════════
         let bal = 1000,
-            bet = 5;
+            bet = 1000;
         let tickets = [],
             activeIdx = 0;
         let draws = [],
@@ -798,8 +940,23 @@
         const fmt = v => Number(v).toFixed(2);
         const upBal = () => document.getElementById('balv').textContent = fmt(bal);
 
+        // Update the drawn numbers row (normal style balls)
+        function updateDrawnNumbersRow() {
+            const row = document.getElementById('drawnNumbersRow');
+            if (!draws.length) {
+                row.innerHTML = '<span style="font-size:10px;color:#444;">Waiting for draw...</span>';
+                return;
+            }
+            const activeTicket = tickets[activeIdx];
+            const userPicks = activeTicket ? new Set(activeTicket.picks) : new Set();
+            row.innerHTML = draws.map(n => {
+                const isHit = userPicks.has(n);
+                return `<div class="drawn-num${isHit?' hit-num':''}">${n}</div>`;
+            }).join('');
+        }
+
         // ══════════════════════════
-        // GRID
+        // GRID (8 columns × 10 rows = 80 numbers)
         // ══════════════════════════
         const gridEl = document.getElementById('grid');
         for (let i = 1; i <= 80; i++) {
@@ -812,16 +969,6 @@
         }
         const getCell = n => gridEl.querySelector(`[data-n="${n}"]`);
 
-        // Build draw grid slots (2×10 = 20)
-        const drawGridEl = document.getElementById('drawGrid');
-        for (let i = 0; i < 20; i++) {
-            const s = document.createElement('div');
-            s.className = 'mb empty-slot';
-            s.id = `dslot${i}`;
-            s.textContent = '';
-            drawGridEl.appendChild(s);
-        }
-
         function pickNum(n) {
             if (drawing) return;
             if (!tickets.length) createTicketSlot();
@@ -831,76 +978,26 @@
                 getCell(n).className = 'cell'; } else { if (t.picks.size >= 10) return;
                 t.picks.add(n);
                 getCell(n).className = 'cell sel'; }
-            updPossibleWin();
             renderTickets();
-        }
-
-        // ══════════════════════════
-        // POSSIBLE WIN
-        // ══════════════════════════
-        function updPossibleWin() {
-            const t = tickets[activeIdx];
-            const sz = t ? t.picks.size : 0;
-            const pwCard = document.getElementById('pwCard');
-            const noPickWrap = document.getElementById('noPickWrap');
-            if (sz === 0) {
-                pwCard.style.display = 'none';
-                noPickWrap.style.display = 'flex';
-                document.getElementById('wtitle').textContent = 'Select up to 10 numbers';
-                document.getElementById('wsub3').textContent = 'from 1 to 80';
-                return;
-            }
-            noPickWrap.style.display = 'none';
-            pwCard.style.display = 'block';
-            const table = PAYS[sz] || [];
-            const minMatch = Math.max(0, table.findIndex(v => v > 0));
-            let html = '';
-            for (let m = minMatch; m <= sz; m++) {
-                const mult = table[m] || 0;
-                const win = (mult * bet).toFixed(2);
-                const isWin = mult > 0;
-                html +=
-                    `<div style="background:#1e1e1e;border:1px solid ${isWin?'#2a3a2a':'#222'};border-radius:6px;padding:4px 8px;display:flex;justify-content:space-between;">
-              <span style="font-size:10px;color:var(--dim)">${m} match${m!==1?'es':''}</span>
-              <span style="font-size:11px;font-weight:700;color:${isWin?'var(--green)':'#444'}">${isWin?win+' ETB':'—'}</span>
-            </div>`;
-            }
-            document.getElementById('pwTable').innerHTML = html;
-            const maxMult = Math.max(...table);
-            document.getElementById('pwBest').textContent = fmt(maxMult * bet);
-            const nums = [...t.picks].sort((a, b) => a - b);
-            document.getElementById('pwPicks').innerHTML = nums.map(n =>
-                `<div style="width:26px;height:26px;border-radius:4px;background:#1a3520;border:1px solid var(--green);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">${n}</div>`
-                ).join('');
         }
 
         // ══════════════════════════
         // TICKETS
         // ══════════════════════════
         function createTicketSlot() {
-            if (tickets.length >= 20) return;
+            if (tickets.length >= 10) return;
             tickets.push({ picks: new Set(), betAmt: bet, status: 'pending', hits: 0, win: 0, mult: 0, locked: false });
             activeIdx = tickets.length - 1;
             refreshGrid();
-            updPossibleWin();
             renderTickets();
-            updHdr();
-        }
-
-        function addTicketSlot() {
-            if (tickets.length >= 20) { alert('Max 20 tickets!'); return; }
-            if (drawing) return;
-            createTicketSlot();
         }
 
         function switchActiveTicket(idx) {
             if (drawing) return;
             activeIdx = idx;
             refreshGrid();
-            updPossibleWin();
-            renderTickets();
             bet = tickets[idx].betAmt;
-            document.getElementById('betdisp').textContent = fmt(bet);
+            document.getElementById('betdisp').textContent = bet;
         }
 
         function deleteTicket(idx) {
@@ -909,9 +1006,7 @@
             if (!tickets.length) activeIdx = 0;
             else activeIdx = Math.min(activeIdx, tickets.length - 1);
             refreshGrid();
-            updPossibleWin();
             renderTickets();
-            updHdr();
         }
 
         function refreshGrid() {
@@ -931,47 +1026,35 @@
             }
         }
 
-        function updHdr() {
-            const active = tickets.filter(t => t.picks.size > 0);
-            const total = active.reduce((s, t) => s + t.betAmt, 0);
-            document.getElementById('totalbet').textContent = fmt(total);
-            document.getElementById('tcount').textContent = active.length;
-            document.getElementById('addtbtn').disabled = tickets.length >= 20 || drawing;
-            document.getElementById('cddisp').style.color = active.length > 0 ? 'var(--gold)' : 'var(--green)';
-        }
-
         function renderTickets() {
             const el = document.getElementById('ticketlist');
             if (!tickets.length) { el.innerHTML =
-                    '<div class="empty">Pick numbers then tap BET / LOCK TICKET.</div>'; return; }
+                    '<div class="empty">Pick numbers then tap START GAME.</div>'; return; }
             el.innerHTML = tickets.map((t, i) => {
                 const nums = [...t.picks].sort((a, b) => a - b);
                 const isAct = i === activeIdx && !drawing;
                 const stCol = t.status === 'win' ? 'var(--green)' : t.status === 'loss' ? 'var(--red)' : t
                     .locked ? 'var(--gold)' : 'var(--dim)';
-                const stTxt = t.status === 'win' ? 'WIN ✓' : t.status === 'loss' ? 'NO WIN' : t.locked ?
-                    'LOCKED ✓' : 'PENDING';
+                const stTxt = t.status === 'win' ? 'WIN' : t.status === 'loss' ? 'LOSS' : t.locked ?
+                    'LOCKED' : 'OPEN';
                 const cells = [...Array(10)].map((_, j) => {
-                    if (j < nums.length) { const hit = t.status !== 'pending' && draws.includes(nums[j]); return `<div class="tn2 ${hit?'th':''}">${nums[j]}</div>`; }
-                    return `<div class="tn2 te">·</div>`;
+                    if (j < nums.length) { const hit = t.status !== 'pending' && draws.includes(nums[j]); return `<div class="rpn ${hit?'rw':''}">${nums[j]}</div>`; }
+                    return `<div class="rpn" style="background:#0a0a0a;border-color:#111;color:#1a1a1a;">·</div>`;
                 }).join('');
                 const resText = t.status === 'win' ? `+${fmt(t.win)} ETB` : t.status === 'loss' ? '—' :
                 'Waiting';
                 const resCol = t.status === 'win' ? 'var(--green)' : t.status === 'loss' ? '#555' :
                 'var(--dim)';
-                return `<div class="ticket ${isAct?'active-t':''}" onclick="switchActiveTicket(${i})">
-              <div class="t-hdr2">
-                <span class="t-id2">Ticket ${i+1}</span>
-                <span style="display:flex;align-items:center;gap:6px;">
-                  <span class="t-st" style="color:${stCol}">${stTxt}</span>
-                  ${!drawing&&t.status==='pending'?`<button class="t-del" onclick="event.stopPropagation();deleteTicket(${i})">✕</button>`:''}
-                </span>
+                return `<div class="res-round" onclick="switchActiveTicket(${i})" style="cursor:pointer;${isAct?'border-color:var(--green);':''}">
+              <div class="res-round-hdr">
+                <span class="res-round-id">Ticket ${i+1}</span>
+                <span style="color:${stCol};font-weight:700;">${stTxt}</span>
+                ${!drawing&&t.status==='pending'?`<button onclick="event.stopPropagation();deleteTicket(${i})" style="background:none;border:none;color:#555;cursor:pointer;font-size:14px;">✕</button>`:''}
               </div>
-              <div class="t-nums2">${cells}</div>
-              <div class="t-ft2"><span class="t-bet2">Bet ${fmt(t.betAmt)}</span><span class="t-res2" style="color:${resCol}">${resText}</span></div>
+              <div class="res-picks">${cells}</div>
+              <div class="res-ft"><span style="color:var(--dim);">Bet ${t.betAmt}</span><span style="color:${resCol};font-weight:700;">${resText}</span></div>
             </div>`;
             }).join('');
-            updHdr();
         }
 
         // ══════════════════════════
@@ -982,7 +1065,6 @@
             cdVal = 60;
             updCd();
             genFakeUsers();
-            renderFakeUsers('betting');
             cdTimer = setInterval(() => {
                 cdVal--;
                 updCd();
@@ -998,7 +1080,7 @@
         }
 
         // ══════════════════════════
-        // PLAY BUTTON = LOCK TICKET
+        // PLAY BUTTON
         // ══════════════════════════
         function manualPlay() {
             if (drawing) return;
@@ -1007,84 +1089,44 @@
             if (t.status !== 'pending') return;
             if (bal < t.betAmt) { alert('Insufficient balance!'); return; }
             t.locked = true;
-            const pb = document.getElementById('playbtn');
-            pb.textContent = 'LOCKED ✓';
-            pb.classList.add('locked');
-            setTimeout(() => { pb.textContent = 'BET / LOCK TICKET';
-                pb.classList.remove('locked'); }, 1400);
-            if (tickets.length < 20) createTicketSlot();
+            document.getElementById('playbtn').textContent = 'LOCKED ✓';
+            document.getElementById('playbtn').classList.add('locked');
+            setTimeout(() => {
+                document.getElementById('playbtn').textContent = 'START GAME';
+                document.getElementById('playbtn').classList.remove('locked');
+            }, 1400);
+            if (tickets.length < 10) createTicketSlot();
             renderTickets();
-            updHdr();
         }
 
         // ══════════════════════════
-        // AUTO DRAW AT 00:00
+        // AUTO DRAW
         // ══════════════════════════
         function autoStartDraw() {
             if (drawing) return;
             const hasTickets = tickets.some(t => t.picks.size > 0 && t.locked);
-            if (!hasTickets) { startDraw(true); return; }
             const totalCost = tickets.filter(t => t.picks.size > 0 && t.locked).reduce((s, t) => s + t.betAmt, 0);
-            if (bal < totalCost) { alert('Insufficient balance!');
+            if (hasTickets && bal < totalCost) { alert('Insufficient balance!');
                 startCountdown(); return; }
-            bal -= totalCost;
-            upBal();
-            startDraw(false);
-        }
-
-        // ══════════════════════════
-        // PARTICLES
-        // ══════════════════════════
-        function spawnParticles(x, y, count, color) {
-            const container = document.body;
-            for (let i = 0; i < count; i++) {
-                const p = document.createElement('div');
-                p.className = 'particle-burst';
-                p.style.left = x + 'px';
-                p.style.top = y + 'px';
-                p.style.background = color;
-                p.style.setProperty('--px', (randInt(-40, 40)) + 'px');
-                p.style.setProperty('--py', (randInt(-50, 20)) + 'px');
-                p.style.width = randInt(3, 8) + 'px';
-                p.style.height = p.style.width;
-                container.appendChild(p);
-                setTimeout(() => p.remove(), 750);
-            }
-        }
-
-        function screenFlash() {
-            const sf = document.getElementById('screenFlash');
-            if (sf) { sf.classList.add('active');
-                setTimeout(() => sf.classList.remove('active'), 200); }
+            if (hasTickets) { bal -= totalCost;
+                upBal(); }
+            startDraw();
         }
 
         // ══════════════════════════
         // DRAW
         // ══════════════════════════
-        async function startDraw(empty) {
+        async function startDraw() {
             drawing = true;
             const pb = document.getElementById('playbtn');
             pb.textContent = 'DRAWING...';
             pb.classList.add('dr');
+            pb.disabled = true;
 
-            document.getElementById('waitWrap').style.display = 'none';
-            document.getElementById('drawNotice').style.display = 'none';
-            const dw = document.getElementById('drawWrap');
-            dw.style.display = 'flex';
-            document.getElementById('bigball').textContent = '—';
             document.getElementById('dccnt').textContent = '0 / 20';
-            document.getElementById('matchIndicator').style.display = 'none';
-
-            const bbOuter = document.getElementById('bigballOuter');
-            bbOuter.classList.remove('pop', 'milestone-hit');
-            const bbSparkle = document.getElementById('bigballSparkle');
-            bbSparkle.classList.remove('active');
-
-            for (let i = 0; i < 20; i++) {
-                const s = document.getElementById(`dslot${i}`);
-                s.className = 'mb empty-slot';
-                s.textContent = '';
-            }
+            draws = [];
+            updateDrawnNumbersRow();
+            refreshGrid();
 
             const pool = [];
             for (let i = 1; i <= 80; i++) pool.push(i);
@@ -1092,136 +1134,78 @@
                 [pool[i], pool[j]] = [pool[j], pool[i]]; }
             draws = pool.slice(0, 20);
 
-            const activeTicket = tickets[activeIdx];
-            const userPicks = activeTicket ? new Set(activeTicket.picks) : new Set();
-            const matchSet = new Set();
-            let totalMatches = 0;
-
             for (let i = 0; i < draws.length; i++) {
                 const n = draws[i];
                 statsMap[n] = (statsMap[n] || 0) + 1;
-                const isMilestone = MILESTONE_INDICES.has(i);
-                const isHit = userPicks.has(n);
-                if (isHit) { matchSet.add(n);
-                    totalMatches++; }
-
-                const bbInner = document.getElementById('bigball');
-                bbInner.textContent = n;
-                bbOuter.classList.remove('pop', 'milestone-hit');
-                void bbOuter.offsetWidth;
-                bbOuter.classList.add('pop');
-                if (isMilestone) {
-                    bbOuter.classList.add('milestone-hit');
-                    bbSparkle.classList.remove('active');
-                    void bbSparkle.offsetWidth;
-                    bbSparkle.classList.add('active');
-                }
                 document.getElementById('dccnt').textContent = `${i+1} / 20`;
 
-                if (!empty) {
-                    getCell(n).className = isHit ? 'cell hc' : 'cell dc';
-                } else getCell(n).className = 'cell dc';
-
-                const slot = document.getElementById(`dslot${i}`);
-                let slotClass = 'mb show';
-                if (isHit) slotClass += ' mh';
-                if (isMilestone) {
-                    slotClass += ' milestone ' + (MILESTONE_CLASSES[i] || '');
+                if (tickets.some(t => t.locked && t.picks.has(n))) {
+                    getCell(n).className = 'cell hc';
+                } else {
+                    getCell(n).className = 'cell dc';
                 }
-                slot.className = slotClass;
-                slot.textContent = n;
-
-                if (isMilestone) {
-                    const rect = slot.getBoundingClientRect();
-                    const cx = rect.left + rect.width / 2;
-                    const cy = rect.top + rect.height / 2;
-                    const colors = ['#ffd700', '#f0b429', '#fff8dc'];
-                    spawnParticles(cx, cy, 10, colors[randInt(0, colors.length - 1)]);
-                    if (isHit) screenFlash();
+                for (let j = 1; j <= 80; j++) {
+                    const c = getCell(j);
+                    if (!c.classList.contains('dc') && !c.classList.contains('hc') && !draws.slice(0, i + 1)
+                        .includes(j)) {
+                        c.classList.add('fd');
+                    }
                 }
-
-                await sleep(isMilestone ? 600 : 400);
+                updateDrawnNumbersRow();
+                await sleep(250);
             }
 
-            // Update match indicator
-            const ind = document.getElementById('matchIndicator');
-            const dotsEl = document.getElementById('matchDots');
-            if (totalMatches === 0) {
-                ind.style.display = 'flex';
-                dotsEl.innerHTML = '<span style="font-size:10px;color:var(--dim);">No matches this round</span>';
-            } else {
-                ind.style.display = 'flex';
-                const hitPositions = [];
-                draws.forEach((n, i) => { if (matchSet.has(n)) hitPositions.push({ n, i }); });
-                dotsEl.innerHTML = hitPositions.map(hp => {
-                    const isMs = MILESTONE_INDICES.has(hp.i);
-                    const dotClass = isMs ? 'match-dot milestone-hit' : 'match-dot hit';
-                    return `<span class="${dotClass}">${hp.n}</span>`;
-                }).join('');
-            }
+            // Score
+            let totalWin = 0;
+            let anyWin = false;
+            tickets.forEach(t => {
+                if (!t.picks.size || !t.locked) { t.status = 'loss'; return; }
+                const hits = [...t.picks].filter(n => draws.includes(n)).length;
+                t.hits = hits;
+                const table = PAYS[t.picks.size];
+                const mult = (table && table[hits]) || 0;
+                t.mult = mult;
+                t.win = parseFloat((t.betAmt * mult).toFixed(2));
+                if (t.win > 0) { t.status = 'win';
+                    totalWin += t.win;
+                    anyWin = true;
+                    winsTotal++; } else t.status = 'loss';
+            });
+            if (totalWin > 0) { bal += totalWin;
+                upBal(); }
 
-            for (let i = 1; i <= 80; i++) {
-                const c = getCell(i);
-                if (!c.classList.contains('dc') && !c.classList.contains('hc')) c.classList.add('fd');
-            }
+            scoreFakeUsers(draws);
+            addHistory();
+            renderTickets();
+            renderHistory();
+            renderResults();
+            renderStats();
+            updateLeadersAfterRound();
 
-            if (!empty) {
-                let totalWin = 0;
-                let anyWin = false;
-                tickets.forEach(t => {
-                    if (!t.picks.size || !t.locked) { t.status = 'loss'; return; }
-                    const hits = [...t.picks].filter(n => draws.includes(n)).length;
-                    t.hits = hits;
-                    const table = PAYS[t.picks.size];
-                    const mult = (table && table[hits]) || 0;
-                    t.mult = mult;
-                    t.win = parseFloat((t.betAmt * mult).toFixed(2));
-                    if (t.win > 0) { t.status = 'win';
-                        totalWin += t.win;
-                        anyWin = true;
-                        winsTotal++; } else t.status = 'loss';
-                });
-                if (totalWin > 0) { bal += totalWin;
-                    upBal(); }
-                scoreFakeUsers(draws);
-                renderFakeUsers('result');
-                renderTickets();
-                addHistory();
-                renderResults();
-                renderStats();
-                if (anyWin) {
-                    setTimeout(() => {
-                        const best = Math.max(...tickets.map(t => t.win));
-                        const bt = tickets.find(t => t.win === best);
-                        document.getElementById('wamt').textContent = fmt(best) + ' ETB';
-                        document.getElementById('wsu2').textContent =
-                            `${bt.hits} of ${bt.picks.size} matched · ${bt.mult}x`;
-                        document.getElementById('winov').classList.add('on');
-                    }, 500);
-                }
-            } else {
-                addHistory();
-                renderStats();
-                renderFakeUsers('result');
+            if (anyWin) {
+                setTimeout(() => {
+                    const best = Math.max(...tickets.map(t => t.win));
+                    const bt = tickets.find(t => t.win === best);
+                    document.getElementById('wamt').textContent = fmt(best) + ' ETB';
+                    document.getElementById('wsu2').textContent =
+                        `${bt.hits} of ${bt.picks.size} matched · ${bt.mult}x`;
+                    document.getElementById('winov').classList.add('on');
+                }, 400);
             }
 
             setTimeout(() => {
                 drawing = false;
-                pb.textContent = 'BET / LOCK TICKET';
+                pb.textContent = 'START GAME';
                 pb.classList.remove('dr');
-                dw.style.display = 'none';
-                document.getElementById('matchIndicator').style.display = 'none';
-                document.getElementById('waitWrap').style.display = 'block';
-                document.getElementById('drawNotice').style.display = 'block';
+                pb.disabled = false;
                 tickets = [];
                 activeIdx = 0;
                 draws = [];
                 refreshGrid();
-                updPossibleWin();
+                updateDrawnNumbersRow();
                 renderTickets();
-                updHdr();
                 startCountdown();
-            }, 3000);
+            }, 2500);
         }
 
         function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -1241,25 +1225,20 @@
                 tickets: tickets.filter(t => t.locked && t.picks.size > 0).map(t => ({ picks: new Set(t.picks),
                     betAmt: t.betAmt, win: t.win, hits: t.hits, mult: t.mult }))
             });
-            renderHistory();
         }
 
         function renderHistory() {
             const el = document.getElementById('histlist');
             if (!histData.length) { el.innerHTML = '<div class="empty">No drawing history yet.</div>'; return; }
             el.innerHTML = histData.map(h => {
-                const t = h.time;
                 const ts =
-                    `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
-                const numHtml = h.draws.map((n, i) => {
-                    const isMs = MILESTONE_INDICES.has(i);
-                    return `<div class="h-num${isMs?' hh':''}">${n}</div>`;
-                }).join('');
+                    `${String(h.time.getHours()).padStart(2,'0')}:${String(h.time.getMinutes()).padStart(2,'0')}:${String(h.time.getSeconds()).padStart(2,'0')}`;
+                const numHtml = h.draws.map(n => `<div class="h-num">${n}</div>`).join('');
                 return `<div class="h-row">
               <div class="h-top">
-                <span style="color:var(--green);">✓</span>
-                <span style="font-size:11px;font-weight:700;">Round #${h.id}</span>
-                <span style="font-size:9px;color:var(--dim);margin-left:auto;">${ts}</span>
+                <span style="color:var(--green);">Draw ID</span>
+                <span style="font-weight:700;">${h.id}</span>
+                <span style="color:var(--dim);margin-left:auto;">${ts}</span>
               </div>
               <div class="h-nums-grid">${numHtml}</div>
             </div>`;
@@ -1270,29 +1249,30 @@
             const el = document.getElementById('reslist');
             if (!histData.length) { el.innerHTML =
                     '<div class="empty">Your ticket results will appear here after each round.</div>'; return; }
-            el.innerHTML = histData.map(h => {
-                const myTickets = h.tickets;
-                if (!myTickets.length) return '';
-                const ts = `${String(h.time.getHours()).padStart(2,'0')}:${String(h.time.getMinutes()).padStart(2,'0')}`;
-                const ticketHtml = myTickets.map((t, i) => {
+            el.innerHTML = histData.filter(h => h.tickets.length > 0).map(h => {
+                const ts =
+                    `${String(h.time.getHours()).padStart(2,'0')}:${String(h.time.getMinutes()).padStart(2,'0')}`;
+                const ticketHtml = h.tickets.map((t, i) => {
                     const nums = [...t.picks].sort((a, b) => a - b);
                     const picks = nums.map(n =>
                         `<div class="rpn ${h.draws.includes(n)?'rw':''}">${n}</div>`).join('');
-                    const drawn = h.draws.map((n) =>
-                        `<span class="rdn ${t.picks.has(n)?'rdh':''}">${n}</span>`
-                    ).join('');
-                    return `<div class="res-ticket">
-                <div class="res-hdr">
-                  <span class="res-id">Ticket ${i+1}</span>
-                  <span style="color:${t.win>0?'var(--green)':'var(--red)'}">${t.win>0?'WIN':'NO WIN'}</span>
+                    return `<div style="background:#0d0d0d;border:1px solid #1a1a1a;border-radius:4px;padding:6px 8px;margin-bottom:3px;">
+                <div style="display:flex;justify-content:space-between;font-size:9px;margin-bottom:4px;">
+                  <span style="color:var(--dim);">Ticket ${i+1}</span>
+                  <span style="color:${t.win>0?'var(--green)':'var(--red)'};font-weight:700;">${t.win>0?'WIN':'LOSS'}</span>
                 </div>
                 <div class="res-picks">${picks}</div>
-                <div class="res-ft"><span>Bet ${fmt(t.betAmt)}</span><span style="color:${t.win>0?'var(--green)':'#555'}">${t.win>0?'+'+fmt(t.win)+' ETB':'—'}</span></div>
-                <div class="res-dl">Drawn:</div><div class="res-drawn">${drawn}</div>
+                <div style="display:flex;justify-content:space-between;font-size:9px;">
+                  <span style="color:var(--dim);">Bet ${t.betAmt}</span>
+                  <span style="color:${t.win>0?'var(--green)':'#555'};font-weight:700;">${t.win>0?'+'+fmt(t.win)+' ETB':'—'}</span>
+                </div>
               </div>`;
                 }).join('');
                 return `<div class="res-round">
-              <div class="res-round-hdr"><span class="res-round-id">Round #${h.id}</span><span class="res-round-time">${ts}</span></div>
+              <div class="res-round-hdr">
+                <span class="res-round-id">Round #${h.id}</span>
+                <span class="res-round-time">${ts}</span>
+              </div>
               ${ticketHtml}
             </div>`;
             }).join('') || '<div class="empty">No ticket results yet.</div>';
@@ -1323,8 +1303,10 @@
             <div class="rate-grid">
               ${allNums.map(x=>{
                 const pct=x.count/maxR;
-                const r=Math.round(pct*220),g=Math.round(40+pct*180),b=Math.round(40);
-                return `<div class="rate-cell" style="background:rgba(${r},${g},${b},0.8);border:1px solid rgba(${r},${g},${b},0.4);"><span class="rn">${x.n}</span><span class="rp">${x.rate.toFixed(0)}%</span></div>`;
+                const r=Math.round(pct*200+30);
+                const g=Math.round(40+pct*170);
+                const b=Math.round(30);
+                return `<div class="rate-cell" style="background:rgba(${r},${g},${b},0.75);border:1px solid rgba(${r},${g},${b},0.35);"><span class="rn">${x.n}</span><span class="rp">${x.rate.toFixed(0)}%</span></div>`;
               }).join('')}
             </div></div>`;
             el.innerHTML = html;
@@ -1333,32 +1315,30 @@
         // ══════════════════════════
         // BET
         // ══════════════════════════
-        const STEPS = [0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500];
+        const STEPS = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
+
         function cbet(d) {
-            let i = STEPS.findIndex(s => Math.abs(s - bet) < .01);
+            let i = STEPS.findIndex(s => Math.abs(s - bet) < 1);
+            if (i < 0) i = STEPS.findIndex(s => s >= bet);
+            if (i < 0) i = STEPS.length - 1;
             i = Math.max(0, Math.min(STEPS.length - 1, i + d));
             bet = STEPS[i];
-            document.getElementById('betdisp').textContent = fmt(bet);
+            document.getElementById('betdisp').textContent = bet;
             if (tickets[activeIdx]) tickets[activeIdx].betAmt = bet;
-            updPossibleWin();
             renderTickets();
         }
-        function dobx2() { bet = Math.min(500, parseFloat((bet * 2).toFixed(2)));
-            document.getElementById('betdisp').textContent = fmt(bet); if (tickets[activeIdx]) tickets[activeIdx].betAmt =
-                bet;
-            updPossibleWin();
+
+        function dobx2() { bet = Math.min(10000, bet * 2);
+            document.getElementById('betdisp').textContent = bet; if (tickets[activeIdx]) tickets[activeIdx].betAmt = bet;
             renderTickets(); }
 
-        function dobmax() { bet = Math.min(bal, 500);
-            document.getElementById('betdisp').textContent = fmt(bet); if (tickets[activeIdx]) tickets[activeIdx].betAmt =
-                bet;
-            updPossibleWin();
+        function dobmax() { bet = Math.min(bal, 10000);
+            document.getElementById('betdisp').textContent = bet; if (tickets[activeIdx]) tickets[activeIdx].betAmt = bet;
             renderTickets(); }
 
         // ══════════════════════════
         // TABS
         // ══════════════════════════
-        // Already defined at top of script, but re-confirm here.
         function swTab(t) {
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('on'));
             document.querySelectorAll('.tabpane').forEach(pane => pane.classList.remove('on'));
@@ -1371,9 +1351,13 @@
         // ══════════════════════════
         // INIT
         // ══════════════════════════
+        initLeaders();
+        renderLeaders();
         upBal();
+        document.getElementById('betdisp').textContent = bet;
         createTicketSlot();
         startCountdown();
+        updateDrawnNumbersRow();
     </script>
 </body>
 </html>
